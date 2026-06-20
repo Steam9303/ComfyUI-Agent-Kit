@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+
+# Fetched at install time — never commit (huge / third-party)
+/templates/
+/workflow_templates/
+comfyui-claude-kit-data/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Generated outputs
+skills/comfyui/workflows/*.json
+!skills/comfyui/workflows/.gitkeep
