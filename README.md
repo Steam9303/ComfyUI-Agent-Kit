@@ -75,9 +75,12 @@ Anything else falls back to the template library.
 
 <div align="center">
 
-<img src="docs/assets/models_by_modality.png" width="760" alt="Per-model prompt recipes by modality: 20 image, 16 video, 4 audio, 4 3D, 44 total, split local/open-weight vs API">
+<img src="docs/assets/models_by_modality.png" width="760" alt="Per-model prompt recipes by modality: 28 image, 17 video, 4 audio, 4 3D, 53 total, split local/open-weight vs API, plus 16 enhancement and utility tools">
 
 </div>
+
+**Full model index** — every model in the library and exactly what the kit has for it (recipe / utility /
+template-only): **[docs/MODEL_INDEX.md](docs/MODEL_INDEX.md)**.
 
 ## Prerequisites
 
@@ -133,6 +136,8 @@ comfyui-claude-kit/
 ├── skills/comfyui/                  SKILL.md + comfy_client.py  (Layer 1, ours)
 ├── tools/gen_quick_index.py         rebuild the template lookup index
 ├── snippets/claude_md_activation.md auto-activation block appended to CLAUDE.md
+├── skills/comfyui/MODELS.md         per-model prompting recipes (53 models) + enhancement/utility
+├── docs/MODEL_INDEX.md              every model in the library and what the kit has for it
 ├── docs/BOOTSTRAP.md                run once on a new machine
 ├── docs/LAYERS.md                   the four layers explained
 ├── docs/NODES.md                    the three Claude nodes, billing + purpose
