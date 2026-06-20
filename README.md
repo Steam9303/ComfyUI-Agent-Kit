@@ -64,18 +64,19 @@ prompting reference distilled from **official sources** (each maker's docs and m
 the per-model templates from the `anthropic-claude` node). When you name a model in a request or a workflow,
 Claude reads that model's entry first and prompts it correctly.
 
-Covered today (53 models with recipes): FLUX.1/.2 + Kontext, Z-Image, Qwen-Image/Edit, SDXL, SD1.5/3.5, HiDream,
+Covered today (65 models with recipes): FLUX.1/.2 + Kontext, Z-Image, Qwen-Image/Edit, SDXL, SD1.5/3.5, HiDream,
 Ideogram, Nano Banana Pro/2, Seedream, Recraft, GPT-Image, Grok, Reve, Kandinsky, BRIA, OmniGen, Chroma, Krea,
-ERNIE-Image, FireRed/LongCat/ChronoEdit (edit), Wan 2.1-2.7, LTX-2.3/2 Pro, Hunyuan Video, SVD, Kling, Veo, Sora,
-Seedance, Luma, Runway, MiniMax, PixVerse, Vidu, Pika, Stable Audio, ACE-Step, ElevenLabs, ChatterBox, Hunyuan3D,
-Tripo, Rodin, Meshy. Plus a separate **Enhancement and utility** section (not prompt-driven, settings not prompts):
+ERNIE-Image, FireRed/LongCat/ChronoEdit (edit), Capybara, Bernini-R, Anima, NewBie, PixelDiT, Ovis-Image, Lens,
+Quiver, Wan 2.1-2.7, LTX-2.3/2 Pro, Hunyuan Video, SVD, Kling, Veo, Sora, Seedance, Luma, Runway, MiniMax, PixVerse,
+Vidu, Pika, HappyHorse, HuMo, SCAIL-2, Stable Audio, ACE-Step, ElevenLabs, ChatterBox, Sonilo, Hunyuan3D, Tripo,
+Rodin, Meshy. Plus a separate **Enhancement and utility** section (not prompt-driven, settings not prompts):
 upscalers and restorers (Real-ESRGAN, SUPIR, SeedVR2, FlashVSR, Topaz, Magnific), frame interpolation (FILM, RIFE),
-and conditioning helpers (SAM3, BiRefNet, Depth Anything, DWPose, MoGe, IP-Adapter, LivePortrait, Mediapipe).
-Anything else falls back to the template library.
+conditioning helpers (SAM3, BiRefNet, Depth Anything, DWPose, MoGe, IP-Adapter, LivePortrait, Mediapipe), and video
+object removal (VOID). Anything else falls back to the template library.
 
 <div align="center">
 
-<img src="docs/assets/models_by_modality.png" width="760" alt="Per-model prompt recipes by modality: 28 image, 17 video, 4 audio, 4 3D, 53 total, split local/open-weight vs API, plus 16 enhancement and utility tools">
+<img src="docs/assets/models_by_modality.png" width="760" alt="Per-model prompt recipes by modality: 36 image, 20 video, 5 audio, 4 3D, 65 total, split local/open-weight vs API, plus 17 enhancement and utility tools">
 
 </div>
 
@@ -136,7 +137,7 @@ comfyui-claude-kit/
 ├── skills/comfyui/                  SKILL.md + comfy_client.py  (Layer 1, ours)
 ├── tools/gen_quick_index.py         rebuild the template lookup index
 ├── snippets/claude_md_activation.md auto-activation block appended to CLAUDE.md
-├── skills/comfyui/MODELS.md         per-model prompting recipes (53 models) + enhancement/utility
+├── skills/comfyui/MODELS.md         per-model prompting recipes (65 models) + enhancement/utility
 ├── docs/MODEL_INDEX.md              every model in the library and what the kit has for it
 ├── docs/BOOTSTRAP.md                run once on a new machine
 ├── docs/LAYERS.md                   the four layers explained

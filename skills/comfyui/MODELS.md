@@ -474,6 +474,82 @@ Qwen-Image-Edit, OmniGen (above), Seedream Edit, and Nano Banana edit, which are
 
 ---
 
+## Newer and niche models
+
+Recently added to the template library. Most now have official docs.comfy.org pages or model cards (researched from
+those); a few are thin on prompt specifics and say so.
+
+### Image
+
+**Capybara** (unified image + video, gen + edit), Glanty / xgen-universe, built on HunyuanVideo-1.5: T2I, image edit
+(TI2I), T2V, I2V, video edit. Natural language for generation, imperative instruction for edits ("Change the time to
+night"); optional Qwen3-VL-8B auto-rewrite expands short prompts. Image 720p / 50 steps, video 480p / 50 steps
+(frames 81/101/121), guidance 4.0; FP8 available; negatives not documented. Source: huggingface.co/xgen-universe/Capybara.
+
+**Bernini-R** (image/video relighting edit), ByteDance, Wan2.2-based (also a 1.3B Wan2.1 fine-tune ~2.6GB). No official
+prompt guide; prompt like a Wan/Qwen-edit relight: describe target lighting (direction, temperature, intensity, mood)
++ what to preserve ("keep subject and pose; relight as warm sunset key from camera-left"); use a reference image to
+carry lighting across a set. Treat steps/CFG like a Wan2.2 edit workflow. Source: huggingface.co/Comfy-Org/Bernini-R.
+
+**Anima** (anime t2i), CircleStone Labs, 2B (Qwen-3 0.6B encoder). Danbooru tags, natural language, or mix; order
+`[quality/meta/year/safety] [char count] [character] [series] [artist] [general]`; positive prefix `masterpiece,
+best quality, score_7, safe,`, negative `worst quality, low quality, score_1..3, artist name`; lowercase tags with
+spaces, artists prefixed `@`. 512-1536px, 30-50 steps, CFG 4-5, sampler er_sde / euler_a / dpmpp_2m_sde_gpu;
+negatives supported; weak at realism and text. Source: docs.comfy.org/tutorials/image/anima/anima.
+
+**NewBie (Exp0.1)** (anime t2i), 3.5B Next-DiT (Gemma3-4B + Jina-CLIP-v2, FLUX VAE). Danbooru tags or natural
+language, but trained on XML structured prompts that bind attributes per character. Use per-character XML blocks
+(`<character_1><gender>1girl</gender><appearance>...</appearance><clothing>...</clothing><action>...</action>
+<position>center_left</position></character_1>`) + a `<general_tags>` block for multi-character scenes; flat tags fine
+for single subjects. 1024x1024, ~28 steps. Source: docs.comfy.org/tutorials/image/newbie-image/newbie-image-exp-0-1.
+
+**PixelDiT** (t2i), NVIDIA, VAE-free pixel-space DiT (~1.3B, Gemma-2-2B-IT encoder). Plain natural-language positive +
+negative (both exposed), no special syntax. No VAE means no reconstruction artifacts, fine texture preserved; 1024px
+multi-aspect; steps/CFG not documented. Source: docs.comfy.org/tutorials/image/pixeldit/pixeldit.
+
+**Ovis-Image** (t2i, text rendering), Alibaba AIDC-AI, 7B optimized for legible text. Natural language, put literal
+text in quotes inside the description (`[scene/style] + "EXACT TEXT" + [typography/material/lighting]`); best for
+posters/banners/logos/UI. 1024px, 50 steps, CFG 5.0; negatives supported. Source: docs.comfy.org/tutorials/image/ovis/ovis-image.
+
+**Lens / Lens Turbo** (t2i), Microsoft, 3.8B MMDiT (GPT-OSS-20B encoder, FLUX.2 VAE); Turbo is the few-step distill.
+Clear descriptive natural-language sentences (FLUX/MMDiT conventions); the encoder favors prompt following over tags.
+1024px multi-aspect; Lens ~50 steps, Lens Turbo ~4-8 steps; CFG/negatives not documented; encoder can sit on CPU to
+fit 24GB. Source: docs.comfy.org/tutorials/image/lens/lens.
+
+**Quiver** (text/image to SVG), API partner node (SVG.io Arrow 1.1 / Max). Natural-language description in `prompt` +
+style hints in `instructions` ("minimalist unicorn icon for a SaaS dashboard" / "flat monochrome, rounded corners,
+clean geometry"); optional references (up to 4 / 16 on Max) + viewBox attributes. Lower temperature (~0.4) for clean
+geometry; output is real editable vector paths. Source: docs.quiver.ai ; blog.comfy.org/p/quiver-structured-svg-generation.
+
+### Video
+
+**HappyHorse 1.0**, Alibaba, 15B cinematic video model, API (muapi.ai / Model Studio partner nodes): T2V, I2V,
+reference-to-video (1-9 reference images), video edit; 3-15s at 720p/1080p. One natural-language paragraph, official
+formula `subject + environment + camera move + motion behavior + lighting + style`; keep motion small and specific
+("subtle wind in hair", not "dancing in a chaotic crowd"), ONE camera move (slow pan / dolly-in / handheld push-in,
+not "wild spinning drone"). Worked example: "young woman in red jacket on rainy neon street, medium shot, slow
+handheld push-in, slight head turn and blinking, wet pavement reflections, cinematic lighting, consistent face,
+stable background." R2V: 1-9 reference images lock identity/outfit/style across cuts (more refs = more consistency).
+Negatives not documented (hosted API); settings are API fields (720p/1080p, 3-15s), no sampler knobs.
+Source: docs.comfy.org/tutorials/partner-nodes/happyhorse/happyhorse1-0 ; happyhorsemodel.ai.
+
+**HuMo**, ByteDance + Tsinghua, human-centric video (HuMo-1.7B in ComfyUI): lip-synced video from text + image +
+audio. Text describes appearance/action/scene, image conditions identity, audio drives lip-sync; modes Text+Image /
+Text+Audio / Text+Image+Audio (TIA = most control, best lip-sync). Up to 97 frames @ 25fps, 720p (~3.9s); TIA wants
+>=24GB; negatives not documented. Source: github.com/Phantom-video/HuMo.
+
+**SCAIL-2**, zai-org (Zhipu/GLM), Wan-based end-to-end character animation: animates a reference character with a
+driving video (also replacement, multi-character), no pose maps/masks. Control by inputs, not text: 1 reference image
++ 1 driving video; tune `pose_strength` (exact-copy vs style adaptation); GGUF build for lower VRAM.
+Source: github.com/zai-org/SCAIL-2.
+
+### Audio
+
+**Sonilo**, AI music, ComfyUI partner node: primarily video-to-music (scores a video frame-synced), plus a
+text-to-music path. Video-to-music is promptless (analyzes visuals/pacing/emotion); optional brief mood+genre+
+instrument phrase refines ("Dreamy ambient electronic", "Lazy jazz instrumental"); output auto-matches the video's
+duration, ~20s, multiple variations. Not a lyric/structure tool. Source: docs.comfy.org/tutorials/partner-nodes/sonilo/video-to-music.
+
 ## Enhancement and utility (NOT prompt-driven)
 
 These are not text-prompted generators. They take an existing image/video, or run inside a graph, and improve or
@@ -530,14 +606,19 @@ upscale on a hero, frame interpolation on a clip, a depth map to drive ControlNe
   + eye/lip retargeting). Use to animate one portrait without per-subject training. Source: github.com/KwaiVGI/LivePortrait.
 - **Mediapipe** (landmarks): fast on-device face (478) / hand (21) / pose (33) landmarks (Holistic combines all).
   Use for lightweight keypoints for conditioning/masking/alignment. Source: ai.google.dev/edge/mediapipe.
+- **VOID** (video inpainting / object removal): Netflix open-source; removes a subject plus its shadows, reflections,
+  and the motion it caused. Control is a 4-value greyscale "quadmask" (remove / overlap / physically-affected / keep),
+  NOT a binary mask or text prompt. Two passes: Pass 1 base, Pass 2 optical-flow refinement for longer/textured clips.
+  Source: docs.comfy.org/tutorials/utility/void-video-inpainting.
 
 ## Sources and provenance
 
 Per-model guidance above is distilled from official sources: each maker's documentation and model cards (Black
 Forest Labs, Stability, Alibaba / Tongyi, ByteDance / BytePlus / Volcengine, Google, OpenAI, xAI, Kuaishou,
 Lightricks, Tencent, Luma, Runway, MiniMax, Recraft, Ideogram, Reve, Sber / FusionBrain, Resemble AI, Tripo,
-Hyper3D, Meshy, BRIA, Baidu, Meituan, NVIDIA, VectorSpaceLab, lodestones, Krea), the official ComfyUI tutorials
-at docs.comfy.org, and the per-model prompt templates shipped with the `anthropic-claude` ComfyUI node (by
+Hyper3D, Meshy, BRIA, Baidu, Meituan, NVIDIA, VectorSpaceLab, lodestones, Krea, Glanty / xgen-universe, CircleStone
+Labs, NewBie-AI, Alibaba AIDC-AI, Microsoft, SVG.io, Sonilo, Phantom-video, zai-org / Zhipu, Netflix), the official
+ComfyUI tutorials at docs.comfy.org, and the per-model prompt templates shipped with the `anthropic-claude` node (by
 alexmunteanu), which are themselves distilled from official prompting guides. The enhancement/utility entries are
 sourced from each project's GitHub / HuggingFace (Real-ESRGAN, SUPIR, SeedVR2, FlashVSR, Topaz, Magnific, FILM,
 RIFE, SAM3, BiRefNet, Depth Anything, DWPose, MoGe, IP-Adapter, LivePortrait, Mediapipe). Specs change; when a

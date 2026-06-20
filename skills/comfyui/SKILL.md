@@ -104,12 +104,14 @@ negative-prompt rule, and its settings. Never carry one model's style to another
 Ideogram, Nano Banana Pro/2, Seedream 4.x/5 Lite, Recraft, GPT-Image, Grok, Reve, Kandinsky, BRIA, OmniGen,
 Chroma, Krea, ERNIE-Image; (image edit) FLUX Kontext, Qwen-Image-Edit, FireRed, LongCat, ChronoEdit; (video)
 Wan 2.1-2.7, LTX-2.3 / 2 Pro, Hunyuan Video, SVD, Kling, Veo, Sora, Seedance, Luma, Runway, MiniMax, PixVerse,
-Vidu, Pika; (audio) Stable Audio, ACE-Step, ElevenLabs, ChatterBox; (3D) Hunyuan3D, Tripo, Rodin, Meshy.
+Vidu, Pika, HappyHorse, HuMo, SCAIL-2; (audio) Stable Audio, ACE-Step, ElevenLabs, ChatterBox, Sonilo; (3D)
+Hunyuan3D, Tripo, Rodin, Meshy; (newer/niche) Capybara, Bernini-R, Anima, NewBie, PixelDiT, Ovis-Image, Lens, Quiver.
 
 It also has an **Enhancement and utility** section (not prompt-driven, use as pipeline steps with settings not
 prompts): upscale/restore/interpolation (Real-ESRGAN, SUPIR, SeedVR2, FlashVSR, Topaz, Magnific, FILM, RIFE) and
 segmentation/depth/pose/conditioning (SAM3, BiRefNet, Depth Anything, DWPose, MoGe, IP-Adapter, LivePortrait,
-Mediapipe). For any model not detailed there, the template library + `/object_info` is the fallback, and the
+Mediapipe) and video object-removal (VOID). For any model not detailed there, the template library + `/object_info`
+is the fallback, and the
 matching official doc link is the source.
 
 ## In-graph Claude nodes (Layer 3) — pick the right one
@@ -147,6 +149,40 @@ Two JSON formats, keep both in mind:
 
 No extra "agent panel" node is required for this; the built-in Workflows sidebar is the bridge. (The
 `comfyui-mcp` ecosystem has an optional live-streaming panel; it is polish, not a requirement.)
+
+## Where models live, and how to download one (DETECT, do not assume)
+
+ComfyUI reads models from one or more model roots. On a **source install** it is `<ComfyUI>/models/<type>/`. On
+**Comfy Desktop** the active root is usually a SHARED folder set via `extra_model_paths.yaml`, NOT
+`<ComfyUI>/models`. Always detect the real root before downloading; a file in the wrong folder is invisible to ComfyUI.
+
+**Detect the real model root first:**
+- Read the ComfyUI startup log: it prints `Adding extra search path <type> <PATH>` for every model type, plus
+  `Setting output/input directory to: ...`. Those PATHs are the truth (MCP `get_logs`, or the Desktop log file).
+- Or read `<ComfyUI>/extra_model_paths.yaml` (and the `.example`).
+- Or ask the running server: `/object_info/CheckpointLoaderSimple`, `/UNETLoader`, `/VAELoader`, `/CLIPLoader`
+  list the files currently visible, which confirms the folder is wired after you drop a file in.
+
+**Model type -> subfolder** (under the detected root):
+- diffusion / UNET single-file model -> `diffusion_models` (sometimes `unet`)
+- full checkpoint (model+clip+vae bundled; some video like LTX ship this way) -> `checkpoints`
+- text encoder / CLIP (T5, umt5, gemma, clip_l, llava) -> `text_encoders` (older installs: `clip`)
+- VAE -> `vae` · LoRA -> `loras` · upscaler (ESRGAN, etc.) -> `upscale_models`
+- ControlNet -> `controlnet` · IP-Adapter -> `ipadapter` · CLIP vision -> `clip_vision`
+
+**How to download (Desktop-safe):**
+- Direct download is most reliable: `curl -fL -C - -o "<root>/<type>/<filename>" "<url>"`. Use the official
+  Comfy-Org repackaged Hugging Face repos (`.../resolve/main/...` direct links). `-C -` resumes a partial file.
+  Big models (tens of GB) are fine to run in the background; verify final size after.
+- The MCP `download_model` works ONLY if the MCP server has `COMFYUI_PATH` set, and it writes to
+  `COMFYUI_PATH/models/<type>`, which on Desktop is usually NOT the shared root, so files can land where ComfyUI
+  cannot see them. Prefer direct download to the detected root (or set COMFYUI_PATH to the real root first).
+- Gated models (e.g. Stability Stable Audio) need a Hugging Face login + license acceptance: ask the owner to
+  accept the license and place the file, or provide an HF token for an authenticated download.
+- The exact file set per model (diffusion model + text encoder(s) + VAE, and which folder each goes in) is on the
+  model's `docs.comfy.org/tutorials/...` page; follow it rather than guessing quant levels or filenames.
+- After download, confirm ComfyUI sees it: re-query `/object_info/<LoaderNode>`. Most model folders refresh live;
+  a brand-new subfolder may need a Workflows-sidebar refresh.
 
 ## Using multiple GPUs (it is NOT like a layer-split LLM server)
 

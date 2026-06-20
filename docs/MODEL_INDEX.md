@@ -10,8 +10,8 @@ template-only coverage (runnable via a template, no dedicated recipe yet).
 | 🔧 **Utility** | enhancement / utility tool, has a "when to use + settings" note (not prompt-driven) |
 | 📋 **Template only** | runnable via a workflow template, no dedicated recipe yet (niche / thin official docs) |
 
-**Totals:** ✅ 53 recipe families (covering ~105 model-name variants) · 🔧 16 utility tools · 📋 11 template-only ·
-plus text encoders / inference providers that are not generative models.
+**Totals:** ✅ 65 recipe families (covering ~117 model-name variants) · 🔧 17 utility tools · 📋 a few obscure
+template-only · plus text encoders / inference providers that are not generative models.
 
 ---
 
@@ -95,6 +95,24 @@ plus text encoders / inference providers that are not generative models.
 
 ---
 
+### Newer / niche (now with recipes)
+| Model | Modality | Run |
+|---|---|---|
+| Capybara | image + video (unified gen/edit) | local |
+| Bernini-R | image/video relighting edit | local |
+| Anima | image (anime t2i) | local |
+| NewBie | image (anime t2i, XML prompts) | local |
+| PixelDiT | image (VAE-free t2i) | local |
+| Ovis-Image | image (text rendering t2i) | local |
+| Lens / Lens Turbo | image (t2i) | local |
+| Quiver | image (text/image to SVG) | API |
+| HappyHorse 1.0 | video (t2v/i2v/r2v/edit) | API |
+| HuMo | video (audio+image+text, lip-sync) | local |
+| SCAIL-2 | video (character animation) | local |
+| Sonilo | audio (music / video soundtrack) | API |
+
+---
+
 ## 🔧 Enhancement and utility tools
 
 Not prompt-driven, see the "Enhancement and utility" section in [`MODELS.md`](../skills/comfyui/MODELS.md) for
@@ -106,17 +124,17 @@ when-to-use + settings.
 - **Depth / geometry:** Depth Anything v2, Depth Anything v3, MoGe
 - **Pose / landmarks:** DWPose, Mediapipe (also SDPose-OOD)
 - **Conditioning / animation:** IP-Adapter, LivePortrait
+- **Video object removal:** VOID (Netflix, quadmask video inpainting)
 
 ---
 
 ## 📋 Template-only (runnable, no recipe yet)
 
-These appear in the template library but lack a dedicated prompt recipe, mostly niche or very new models with thin
-official prompting docs. Run them from their template; prompt them with the closest family's approach from
-`MODELS.md` as a starting point.
-
-Capybara, HappyHorse 1.0, Bernini-R, Anima, Sonilo, NewBie, PixelDiT, SCAIL-2, HuMo, Seed 2.0, VOID, plus a few
-one-off entries (Quiver, Lens, PiD, HitPaw, Reimagine).
+After the niche-model research pass, almost everything in the library now has a recipe or a utility note. What
+remains here is a short tail of one-off entries with no official prompting docs (e.g. HitPaw and Reimagine, which are
+enhancement-style; PiD). Run them from their template and prompt them with the closest family's approach from
+`MODELS.md` as a starting point. Note: ByteDance **Seed 2.0** is an image/video *understanding* model (analysis to
+text), not a generator, so it lives under "Not generative models" below, not here.
 
 ---
 
