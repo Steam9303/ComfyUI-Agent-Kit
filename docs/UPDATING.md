@@ -28,7 +28,9 @@ recent blog posts. Run it any time to see what changed. Stdlib only.
    docs.comfy.org) and add a recipe to `shared/comfyui/MODELS.md` in the same format. Update `docs/MODEL_INDEX.md`
    and the coverage counts. (New utility/upscaler -> the Enhancement section instead.)
 3. Regenerate the coverage chart if the counts changed.
-4. Sync `MODELS.md` / `SKILL.md` to the installed skill(s) and commit + push. Content edits do NOT need an
+4. Add an entry to `CHANGELOG.md` under `## [Unreleased]` (Keep a Changelog: Added / Changed / Fixed) so the
+   history stays current.
+5. Sync `MODELS.md` / `SKILL.md` to the installed skill(s) and commit + push. Content edits do NOT need an
    installer re-run, the agents read the skill files live; only a brand-new MCP/agent needs its adapter re-run.
 
 The agent can do steps 1-2 itself on request: *"check for new ComfyUI models and add recipes for any new ones."*
