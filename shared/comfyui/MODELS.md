@@ -278,6 +278,10 @@ Qwen-Image-Edit, OmniGen (above), Seedream Edit, and Nano Banana edit, which are
 - **Strengths:** 2.2 better prompt adherence, negative enforcement, camera control, temporal consistency; sequential "first... then...".
 - **Avoid:** multiple actions/conflicting camera moves, keyword stuffing, vague descriptors. Negatives ARE supported (best on 2.2): "blurry, low quality, watermark, jittery motion, deformed hands, extra limbs, distorted face, morphing".
 - **Settings:** ~5s; native fps 16 (24 for 5B TI2V); ~480-720p by VRAM; prompt ~256 tokens; 14B loads BOTH high-noise + low-noise experts sequentially; 5B TI2V single hybrid (8GB-friendly). Use the official ComfyUI Wan2.2 workflow defaults; run a short low-res test first.
+- **Multi-shot temporal control (Prompt Relay):** Wan 2.2 is the NATIVE target of Prompt Relay (arXiv 2604.10030):
+  route timed `local_prompts` to their segments via a cross-attention penalty for multi-event clips without
+  entanglement (often beats base Wan 2.2 on temporal alignment, near Kling 3.0). Official Wan2.2 implementation +
+  ComfyUI port `kijai/ComfyUI-PromptRelay`; node + Smart-syntax details in the LTX-2.3 entry. Source: gordonchen19.github.io/Prompt-Relay.
 - **Source:** docs.comfy.org/tutorials/video/wan/wan2_2 ; node template `wan_2-1_2-2.md`.
 
 ### Wan 2.5 / 2.6 (Alibaba, API)
@@ -328,6 +332,20 @@ Qwen-Image-Edit, OmniGen (above), Seedream Edit, and Nano Banana edit, which are
   `hdr.py` node + an `hdr_input_video.mp4` example); needs a CURRENT ComfyUI-LTXVideo (the `LTXICLoRALoaderModelOnly`
   node, absent in older installs). Save to an HDR-capable format (EXR / 16-bit / HDR video), NOT 8-bit PNG. Source:
   huggingface.co/Lightricks/LTX-2.3-22b-IC-LoRA-HDR ; hdr-lumivid.github.io ; github.com/Lightricks/ComfyUI-LTXVideo.
+- **Multi-shot / timeline direction (Prompt Relay + LTX Director 2.0):** several TIMED events in ONE clip without
+  temporal entanglement (one paragraph for many events smears them). **Prompt Relay** (arXiv 2604.10030, S-Lab NTU)
+  is a training-free, inference-time method: it routes each prompt to its time segment via a distance penalty in
+  cross-attention. Input = a `global_prompt` (persistent character/scene) + ordered `local_prompts` + optional
+  `segment_lengths` (latent-frame budget per prompt, summing to (frames-1)//4+1). ComfyUI port:
+  `kijai/ComfyUI-PromptRelay` (nodes `PromptRelayEncodeTimeline` + a "Smart" encoder: one field, segments split by
+  `|` or `Scene N:` headers, weights `[0-50]`/ranges, auto frame distribution); ready graph
+  `prompt_relay_ltx23_test_02.json`; works on LTX 2.3 AND Wan 2.2; WIP, NO license file (use ok, do not
+  redistribute). **LTX Director 2.0** (`WhatDreamsCost/WhatDreamsCost-ComfyUI`, GPL-3.0) wraps Prompt Relay into a
+  full timeline-editor node for LTX 2.3: trim/split/combine, IC-LoRA track, keyframes, audio inpaint, Retake
+  (regenerate a shot segment), save/load timeline; ready graph `LTX_Director_2_Workflow_Hotfix.json` (nodes
+  `LTXDirector`/`LTXDirectorGuide` + 2-stage `LTXVLatentUpsampler` + audio). Both REQUIRE current
+  `ComfyUI-LTXVideo` + `ComfyUI-KJNodes`, and Prompt Relay monkeypatches cross-attention (version-sensitive).
+  Source: gordonchen19.github.io/Prompt-Relay ; github.com/kijai/ComfyUI-PromptRelay ; github.com/WhatDreamsCost/WhatDreamsCost-ComfyUI.
 - **Source:** https://ltx.io/blog/ltx-2-3-prompt-guide (official prompt guide) ; docs.comfy.org/tutorials/video/ltx/ltx-2-3 ; huggingface.co/Lightricks/LTX-2.3 ; github.com/Lightricks/ComfyUI-LTXVideo.
 
 ### LTX-2 Pro (Lightricks)

@@ -14,7 +14,17 @@ vx.y.z`), which can become a GitHub Release.
 
 ## [Unreleased]
 
+Nothing yet.
+
+## [1.1.0] - 2026-06-22
+
 ### Added
+- **Multi-shot / timeline video direction (Prompt Relay + LTX Director 2.0).** Documented the Prompt Relay method
+  (arXiv 2604.10030; training-free, inference-time temporal prompt routing via a cross-attention penalty), its
+  ComfyUI port `kijai/ComfyUI-PromptRelay` (Smart segment syntax, ready LTX-2.3 + Wan 2.2 graphs), and
+  `WhatDreamsCost` LTX Director 2.0 (timeline-editor node for LTX 2.3, GPL-3.0) in the LTX-2.3 entry, plus a Prompt
+  Relay note in the Wan 2.1/2.2 entry. Caveats noted: needs current ComfyUI-LTXVideo + KJNodes, a cross-attention
+  monkeypatch, and the kijai port ships no license file.
 - **Z-Image-Turbo ControlNet + upscale options.** Documented the alibaba-pai Fun-Controlnet-Union (Canny / Depth /
   Pose / HED / MLSD, + Scribble/Gray builds, `control_context_scale` 0.65-1.00, 8-step distilled) in the
   Z-Image-Turbo entry, plus two upscale paths: the hires-fix "controlnet-locked upscale" and the companion
