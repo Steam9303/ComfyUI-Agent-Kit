@@ -77,6 +77,8 @@ FLUX prose will not help SDXL).
 - **Avoid:** negative prompts not used (CFG-distilled); high CFG (4+) degrades results.
 - **Settings:** ~8-9 steps; CFG 0.0 per the official card (community ComfyUI guides ~1.5-2.0 if any); 1024x1024 best (2K direct can distort, upscale + second pass at ~0.3 denoise); community sampler euler_ancestral or dpmpp_sde, scheduler sgm_uniform.
 - **Source:** huggingface.co/Tongyi-MAI/Z-Image-Turbo ; docs.comfy.org/tutorials/image/z-image/z-image-turbo.
+- **ControlNet (Fun-Controlnet-Union, alibaba-pai, Apache-2.0):** union ControlNet for Z-Image-Turbo; modes Canny / Depth / Pose / HED / MLSD (+ Scribble in the 2601 build, + Gray in 2602), plus an inpaint mode. Use the distilled `2.1-2602-8steps` variant at 8 steps (the non-distilled 2.0/2.1 lose Turbo's acceleration and then need more steps + cfg). Main knob `control_context_scale` 0.65-1.00 (higher = stronger control and better detail preservation); a detailed prompt helps stability. ComfyUI wiring: load the weights with `ModelPatchLoader`, apply with a DiffSynth ControlNet node (`QwenImageDiffsynthControlnet` in the reference graph; confirm the exact node/pack against `/object_info`). Source: huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1 ; github.com/aigc-apps/VideoX-Fun.
+- **Upscale (two options, pick by need):** (1) hires-fix: resize up (lanczos 2x) then a Z-Image-Turbo img2img refine. A plain refine keeps denoise ~0.3 to stay faithful, but locking structure with the Union ControlNet lets you push denoise ~0.7 for more detail without drift (the "controlnet-locked upscale" pattern). (2) real super-resolution: the companion `Z-Image-Turbo-Fun-Controlnet-Tile-2.1-2601-8steps` Tile model, trained to 2048x2048 for SR, 8 steps, tiled so structure holds. Prefer the Tile model for an actual upscale; use hires-fix only for a quick detail bump. Cost: needs the controlnet checkpoint(s) + custom nodes (the DiffSynth ControlNet apply node, KJNodes `ImageResizeKJv2`, controlnet_aux preprocessors DWPose/MiDaS/Canny, rgthree Power Lora Loader) and any z-turbo LoRAs.
 
 ### Qwen-Image (Alibaba)
 - **Prompt style:** structured natural language, not tag dumps.
@@ -590,6 +592,10 @@ upscale on a hero, frame interpolation on a clip, a depth map to drive ControlNe
   4n+1 rule (1,5,9,13,21...); ~8GB to 24GB+. Source: github.com/numz/ComfyUI-SeedVR2_VideoUpscaler.
 - **FlashVSR** (video super-res): one-step streaming diffusion, ~17 FPS at 768x1408 on an A100; designed for 4x SR
   (use 4x for best stability); V1.1 recommended. Source: huggingface.co/JunhaoZhuang/FlashVSR.
+- **Z-Image-Turbo Fun-ControlNet-Tile** (diffusion tile SR): ControlNet-Tile super-res for the Z-Image-Turbo stack,
+  trained to 2048x2048, 8-step distilled; tiled so structure holds while enlarging. Reuses the Z-Image loader
+  (8 steps, low CFG), so no separate SR model stack. Pairs with the Union "controlnet-locked upscale" (see the
+  Z-Image-Turbo entry above). Source: huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1.
 - **Topaz** (external API): commercial upscale/denoise/sharpen + frame interpolation via Topaz's API (built-in
   `TopazVideoEnhance` node). Models Starlight/Astra; interpolation 15-240 fps, slow-mo 1-16x; needs a license.
   Source: docs.comfy.org/built-in-nodes/TopazVideoEnhance.

@@ -14,7 +14,11 @@ vx.y.z`), which can become a GitHub Release.
 
 ## [Unreleased]
 
-Nothing yet.
+### Added
+- **Z-Image-Turbo ControlNet + upscale options.** Documented the alibaba-pai Fun-Controlnet-Union (Canny / Depth /
+  Pose / HED / MLSD, + Scribble/Gray builds, `control_context_scale` 0.65-1.00, 8-step distilled) in the
+  Z-Image-Turbo entry, plus two upscale paths: the hires-fix "controlnet-locked upscale" and the companion
+  Fun-ControlNet-Tile super-res model (also added to the upscaler list). Verified against the official HF model card.
 
 ## [1.0.0] - 2026-06-21
 
