@@ -78,7 +78,7 @@ FLUX prose will not help SDXL).
 - **Settings:** ~8-9 steps; CFG 0.0 per the official card (community ComfyUI guides ~1.5-2.0 if any); 1024x1024 best (2K direct can distort, upscale + second pass at ~0.3 denoise); community sampler euler_ancestral or dpmpp_sde, scheduler sgm_uniform.
 - **Source:** huggingface.co/Tongyi-MAI/Z-Image-Turbo ; docs.comfy.org/tutorials/image/z-image/z-image-turbo.
 - **ControlNet (Fun-Controlnet-Union, alibaba-pai, Apache-2.0):** union ControlNet for Z-Image-Turbo; modes Canny / Depth / Pose / HED / MLSD (+ Scribble in the 2601 build, + Gray in 2602), plus an inpaint mode. Use the distilled `2.1-2602-8steps` variant at 8 steps (the non-distilled 2.0/2.1 lose Turbo's acceleration and then need more steps + cfg). Main knob `control_context_scale` 0.65-1.00 (higher = stronger control and better detail preservation); a detailed prompt helps stability. ComfyUI wiring: load the weights with `ModelPatchLoader`, apply with a DiffSynth ControlNet node (`QwenImageDiffsynthControlnet` in the reference graph; confirm the exact node/pack against `/object_info`). Source: huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1 ; github.com/aigc-apps/VideoX-Fun.
-- **Upscale (two options, pick by need):** (1) hires-fix: resize up (lanczos 2x) then a Z-Image-Turbo img2img refine. A plain refine keeps denoise ~0.3 to stay faithful, but locking structure with the Union ControlNet lets you push denoise ~0.7 for more detail without drift (the "controlnet-locked upscale" pattern). (2) real super-resolution: the companion `Z-Image-Turbo-Fun-Controlnet-Tile-2.1-2601-8steps` Tile model, trained to 2048x2048 for SR, 8 steps, tiled so structure holds. Prefer the Tile model for an actual upscale; use hires-fix only for a quick detail bump. Cost: needs the controlnet checkpoint(s) + custom nodes (the DiffSynth ControlNet apply node, KJNodes `ImageResizeKJv2`, controlnet_aux preprocessors DWPose/MiDaS/Canny, rgthree Power Lora Loader) and any z-turbo LoRAs.
+- **Upscale (two options, pick by need):** (1) hires-fix / controlnet-locked: resize up (lanczos 2x) then a Z-Image-Turbo img2img refine with the Union ControlNet locking composition. VERIFIED by testing: the ControlNet holds STRUCTURE (pose, framing, edges) but Z-Image still regenerates content, so at denoise ~0.4-0.7 a real person's face drifts to a similar-but-different identity (structure preserved, identity NOT). Keep denoise ~0.2 to stay faithful (little detail gain), or treat this mode as stylize/enhance, not identity-faithful SR. (2) real super-resolution: the companion `Z-Image-Turbo-Fun-Controlnet-Tile-2.1-2601-8steps` Tile model, trained to 2048x2048 for SR, 8 steps, tiled so structure holds WITHOUT reinterpreting; this is the faithful path. For an identity-locked face upscale, prefer a GAN (Real-ESRGAN) or the Tile model, optionally with a face-ID adapter (PuLID/InstantID). Cost / gotchas: needs the controlnet checkpoint(s) + custom nodes (DiffSynth ControlNet apply node, KJNodes `ImageResizeKJv2`, rgthree Power Lora Loader; core `Canny` or controlnet_aux for the control image); a single high-res pass with the FULL 6.7GB control model is VRAM-heavy and offloads (a ~2.7K refine OOM-crashed a running server on a 24GB card), so cap the target resolution or use the lite control model.
 
 ### Qwen-Image (Alibaba)
 - **Prompt style:** structured natural language, not tag dumps.
@@ -320,6 +320,14 @@ Qwen-Image-Edit, OmniGen (above), Seedream Edit, and Nano Banana edit, which are
   ~1.4); **MotionDeblur** (oumoumad, community, KEY for RESTORATION: reduces/removes motion blur and reconstructs
   sharper frames; file `ltx-2.3-22b-ic-lora-motiondeblur.safetensors`). Pair MotionDeblur with the LTX-2.3 restore
   templates (restore_archival_footage, remove_watermark) and the SeedVR2/SUPIR upscalers for a restoration chain.
+- **HDR IC-LoRA (SDR -> HDR video):** `Lightricks/LTX-2.3-22b-IC-LoRA-HDR` (files `ltx-2.3-22b-ic-lora-hdr-0.9.safetensors`
+  + `ltx-2.3-22b-ic-lora-hdr-scene-emb.safetensors`; `license:other`, GATED on HF, so accept the license + use a token
+  to download). Per the paper (arXiv 2604.11788, "HDR Video Generation via Latent Alignment with Logarithmic Encoding")
+  a logarithmic encoding maps HDR into the model's latent so a light IC-LoRA adapts it without retraining the encoder.
+  READY workflow ships in the pack: `ComfyUI-LTXVideo/example_workflows/2.3/LTX-2.3_ICLoRA_HDR_Distilled.json` (with the
+  `hdr.py` node + an `hdr_input_video.mp4` example); needs a CURRENT ComfyUI-LTXVideo (the `LTXICLoRALoaderModelOnly`
+  node, absent in older installs). Save to an HDR-capable format (EXR / 16-bit / HDR video), NOT 8-bit PNG. Source:
+  huggingface.co/Lightricks/LTX-2.3-22b-IC-LoRA-HDR ; hdr-lumivid.github.io ; github.com/Lightricks/ComfyUI-LTXVideo.
 - **Source:** https://ltx.io/blog/ltx-2-3-prompt-guide (official prompt guide) ; docs.comfy.org/tutorials/video/ltx/ltx-2-3 ; huggingface.co/Lightricks/LTX-2.3 ; github.com/Lightricks/ComfyUI-LTXVideo.
 
 ### LTX-2 Pro (Lightricks)
@@ -594,8 +602,10 @@ upscale on a hero, frame interpolation on a clip, a depth map to drive ControlNe
   (use 4x for best stability); V1.1 recommended. Source: huggingface.co/JunhaoZhuang/FlashVSR.
 - **Z-Image-Turbo Fun-ControlNet-Tile** (diffusion tile SR): ControlNet-Tile super-res for the Z-Image-Turbo stack,
   trained to 2048x2048, 8-step distilled; tiled so structure holds while enlarging. Reuses the Z-Image loader
-  (8 steps, low CFG), so no separate SR model stack. Pairs with the Union "controlnet-locked upscale" (see the
-  Z-Image-Turbo entry above). Source: huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1.
+  (8 steps, low CFG), so no separate SR model stack. This is the IDENTITY-FAITHFUL path: unlike the Union
+  controlnet-locked img2img refine (which regenerates a real subject's face at denoise 0.4+), the Tile model
+  enlarges without reinterpreting. See the Z-Image-Turbo entry above. Source:
+  huggingface.co/alibaba-pai/Z-Image-Turbo-Fun-Controlnet-Union-2.1.
 - **Topaz** (external API): commercial upscale/denoise/sharpen + frame interpolation via Topaz's API (built-in
   `TopazVideoEnhance` node). Models Starlight/Astra; interpolation 15-240 fps, slow-mo 1-16x; needs a license.
   Source: docs.comfy.org/built-in-nodes/TopazVideoEnhance.

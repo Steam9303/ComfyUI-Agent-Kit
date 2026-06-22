@@ -19,6 +19,15 @@ vx.y.z`), which can become a GitHub Release.
   Pose / HED / MLSD, + Scribble/Gray builds, `control_context_scale` 0.65-1.00, 8-step distilled) in the
   Z-Image-Turbo entry, plus two upscale paths: the hires-fix "controlnet-locked upscale" and the companion
   Fun-ControlNet-Tile super-res model (also added to the upscaler list). Verified against the official HF model card.
+- **LTX-2.3 HDR IC-LoRA (SDR -> HDR video).** Documented `Lightricks/LTX-2.3-22b-IC-LoRA-HDR` in the LTX-2.3 entry:
+  gated `license:other` weights, the ready `LTX-2.3_ICLoRA_HDR_Distilled.json` workflow in the ComfyUI-LTXVideo pack,
+  the arXiv 2604.11788 method, the `LTXICLoRALoaderModelOnly` requirement, and the HDR-format-out caveat.
+
+### Fixed
+- **Corrected the controlnet-locked upscale claim.** Live testing showed the Union-ControlNet img2img refine holds
+  STRUCTURE but Z-Image regenerates a real subject's IDENTITY at denoise 0.4+ (the earlier "denoise ~0.7 without
+  drift" wording was misleading). Reworded to keep denoise ~0.2 for fidelity, or use the Tile model / a GAN / a
+  face-ID adapter for an identity-locked face upscale; also flagged the full control model's high-res VRAM/OOM cost.
 
 ## [1.0.0] - 2026-06-21
 
